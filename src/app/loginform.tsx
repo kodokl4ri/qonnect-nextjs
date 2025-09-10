@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -15,11 +16,10 @@ export default function LoginForm() {
         "https://reprints-serving-cage-meter.trycloudflare.com/api/csrf/",
         {
           credentials: "include",
-          headers: new Headers({
-            "ngrok-skip-browser-warning": "69420",
+          headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken || "", // jika endpoint memerlukan CSRF
-          }),
+            "X-CSRFToken": csrfToken || "",
+          },
         }
       );
       const data = await res.json();
@@ -56,12 +56,18 @@ export default function LoginForm() {
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <motion.form
+      className="space-y-6"
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
       <div>
         <label className="block text-sm text-gray-300 mb-1">E-mail</label>
         <input
           type="text"
-          className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
@@ -71,7 +77,7 @@ export default function LoginForm() {
         <label className="block text-sm text-gray-300 mb-1">Password</label>
         <input
           type="password"
-          className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
@@ -83,21 +89,22 @@ export default function LoginForm() {
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
-            className="rounded border-gray-400 bg-white/5 text-indigo-400 focus:ring-indigo-500"
+            className="rounded border-gray-400 bg-white/5 text-purple-500 focus:ring-purple-500"
           />
           Remember Me
         </label>
-        <a href="#" className="text-indigo-400 hover:underline">
+        <a href="#" className="text-purple-400 hover:underline">
           Forgot Password?
         </a>
       </div>
-      <button
+      <motion.button
         type="submit"
         disabled={loading}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50"
+        whileTap={{ scale: 0.95 }}
+        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg shadow-purple-500/30 hover:opacity-90 transition disabled:opacity-50"
       >
         {loading ? "Logging in..." : "Login"}
-      </button>
-    </form>
+      </motion.button>
+    </motion.form>
   );
 }
