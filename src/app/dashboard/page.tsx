@@ -15,41 +15,16 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/auth_status/",
-        {
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
-
-      if (!data.authenticated) {
-        // Jika belum login, redirect ke login
-        router.replace("/");
-      } else {
-        setLoading(false); // render dashboard
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const res = await fetch(
           "https://thus-favorites-virtually-inspired.trycloudflare.com/api/home/",
-          {
-            credentials: "include",
-          }
+          { credentials: "include" }
         );
-
         if (!res.ok) {
           const text = await res.text();
           throw new Error(`HTTP ${res.status}: ${text}`);
         }
-
         const json = await res.json();
         setData(json);
       } catch (err: any) {
@@ -59,7 +34,6 @@ export default function DashboardPage() {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, []);
 
@@ -86,22 +60,6 @@ export default function DashboardPage() {
       { title: "Total Applications", value: data.total_applications },
       { title: "Pending Applications", value: data.applications_pending },
       { title: "Approved Applications", value: data.applications_approved }
-    );
-  } else if (data.groups?.includes("PARTNER")) {
-    stats.push(
-      { title: "My Programs", value: data.my_programs },
-      { title: "My Active Programs", value: data.my_active_programs },
-      { title: "My Applications", value: data.my_applications },
-      { title: "Pending Reports", value: data.my_reports_pending }
-    );
-  } else if (data.groups?.includes("KORWIL")) {
-    stats.push(
-      { title: "My Institutions", value: data.my_institutions },
-      {
-        title: "Applications From Region",
-        value: data.applications_from_region,
-      },
-      { title: "Pending Reports", value: data.pending_reports }
     );
   } else if (data.groups?.includes("LPQ")) {
     stats.push(

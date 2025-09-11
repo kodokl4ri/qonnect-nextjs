@@ -111,20 +111,34 @@ export default function LoginForm() {
           placeholder="••••••••"
         />
       </div>
-      <div className="flex items-center justify-between text-sm text-gray-300">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="rounded border-gray-400 bg-white/5 text-purple-500 focus:ring-purple-500"
-          />
-          Remember Me
-        </label>
-        <a href="#" className="text-purple-400 hover:underline">
-          Forgot Password?
-        </a>
+      <div className="flex flex-col mt-2 text-sm text-gray-300">
+        {/* Baris Remember Me + Register */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 mb-1 w-full">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="rounded border-gray-400 bg-white/5 text-purple-500 focus:ring-purple-500"
+            />
+            Remember Me
+          </label>
+          <a
+            href="/register"
+            className="text-purple-400 hover:underline font-medium"
+          >
+            Register
+          </a>
+        </div>
+
+        {/* Baris Forgot Password */}
+        <div className="w-full text-left sm:text-right">
+          <a href="#" className="text-purple-400 hover:underline">
+            Forgot Password?
+          </a>
+        </div>
       </div>
+
       <motion.button
         type="submit"
         disabled={loading}

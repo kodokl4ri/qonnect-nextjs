@@ -19,6 +19,7 @@ type UserData = {
   tanggal_berdiri: string;
   nama_pimpinan: string;
   nomor_HP_pimpinan: string;
+  legalitas_lembaga: File | null;
 };
 
 export default function RegisterForm() {
@@ -37,6 +38,7 @@ export default function RegisterForm() {
     tanggal_berdiri: "",
     nama_pimpinan: "",
     nomor_HP_pimpinan: "",
+    legalitas_lembaga: null,
   });
 
   const [provinsiList, setProvinsiList] = useState<any[]>([]);
@@ -99,6 +101,28 @@ export default function RegisterForm() {
     setUserData({ ...userData, [name]: value });
   };
 
+  // Handle file upload
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Validasi format PDF
+      if (!file.name.toLowerCase().endsWith(".pdf")) {
+        alert("File harus berformat PDF");
+        return;
+      }
+
+      // Validasi ukuran max 20MB
+      const maxSize = 20 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert("Ukuran file maksimal 20MB");
+        return;
+      }
+
+      setUserData({ ...userData, legalitas_lembaga: file });
+    }
+  };
+
   const handleNext = () => {
     // Validasi sederhana: pastikan semua field step terisi
     if (
@@ -128,16 +152,20 @@ export default function RegisterForm() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const formData = new FormData();
+      Object.entries(userData).forEach(([key, value]) => {
+        if (value !== null) formData.append(key, value as any);
+      });
+
       const res = await fetch(
         "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/register/",
         {
           method: "POST",
           credentials: "include",
           headers: {
-            "Content-Type": "application/json",
             "X-CSRFToken": csrfToken,
           },
-          body: JSON.stringify(userData),
+          body: formData,
         }
       );
 
@@ -388,6 +416,26 @@ export default function RegisterForm() {
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
+            </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="legalitas_lembaga"
+                className="text-white mb-1 font-medium"
+              >
+                Upload Legalitas Lembaga (PDF, max 20MB)
+              </label>
+              <input
+                type="file"
+                name="legalitas_lembaga"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="w-full text-sm text-white file:bg-indigo-600 file:px-3 file:py-2 file:rounded-xl file:border-none file:text-white file:cursor-pointer"
+              />
+              {userData.legalitas_lembaga && (
+                <p className="text-green-400 mt-1 text-sm">
+                  Selected: {userData.legalitas_lembaga.name}
+                </p>
+              )}
             </div>
             <div className="flex flex-col">
               <label
