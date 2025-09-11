@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -8,12 +9,27 @@ export default function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [csrfToken, setCsrfToken] = useState("");
+  const searchParams = useSearchParams();
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  // Ambil pesan sukses register dari query param
+  useEffect(() => {
+    if (searchParams.get("registered") === "true") {
+      setMessage({
+        text: "Register berhasil! Silakan login.",
+        type: "success",
+      });
+    }
+  }, [searchParams]);
 
   // Ambil CSRF token saat komponen mount
   useEffect(() => {
     const fetchCsrfToken = async () => {
       const res = await fetch(
-        "https://reprints-serving-cage-meter.trycloudflare.com/api/csrf/",
+        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/csrf/",
         {
           credentials: "include",
           headers: {
@@ -33,7 +49,7 @@ export default function LoginForm() {
     setLoading(true);
 
     const res = await fetch(
-      "https://reprints-serving-cage-meter.trycloudflare.com/api/login/",
+      "https://thus-favorites-virtually-inspired.trycloudflare.com/api/login/",
       {
         method: "POST",
         credentials: "include",
@@ -63,6 +79,18 @@ export default function LoginForm() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* Notifikasi sukses / error */}
+      {message && (
+        <div
+          className={`mb-4 p-3 rounded-lg text-center ${
+            message.type === "success"
+              ? "bg-green-500 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
       <div>
         <label className="block text-sm text-gray-300 mb-1">E-mail</label>
         <input

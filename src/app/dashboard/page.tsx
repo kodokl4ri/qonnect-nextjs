@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatsCard from "./components/StatsCard";
+import { useRouter } from "next/navigation";
 
 interface DashboardData {
   [key: string]: any;
@@ -11,12 +12,34 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch(
+        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/auth_status/",
+        {
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+
+      if (!data.authenticated) {
+        // Jika belum login, redirect ke login
+        router.replace("/");
+      } else {
+        setLoading(false); // render dashboard
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const res = await fetch(
-          "https://reprints-serving-cage-meter.trycloudflare.com/api/home/",
+          "https://thus-favorites-virtually-inspired.trycloudflare.com/api/home/",
           {
             credentials: "include",
           }

@@ -11,7 +11,7 @@ export default function LoginPage() {
   useEffect(() => {
     const checkAuth = async () => {
       const res = await fetch(
-        "https://reprints-serving-cage-meter.trycloudflare.com/api/auth/auth_status/",
+        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/auth_status/",
         { credentials: "include" }
       );
       const data = await res.json();

@@ -25,7 +25,7 @@ export default function Topbar({ setSidebarOpen }: Props) {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       const res = await fetch(
-        "https://reprints-serving-cage-meter.trycloudflare.com/api/csrf/",
+        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/csrf/",
         {
           credentials: "include",
           headers: {
@@ -44,7 +44,7 @@ export default function Topbar({ setSidebarOpen }: Props) {
   const handleLogout = async () => {
     try {
       const res = await fetch(
-        "https://reprints-serving-cage-meter.trycloudflare.com/api/logout/",
+        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/logout/",
         {
           method: "POST",
           credentials: "include",
