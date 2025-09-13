@@ -10,6 +10,7 @@ export default function Topbar({ setSidebarOpen }: Props) {
   const [open, setOpen] = useState(false);
   const [csrfToken, setCsrfToken] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -24,17 +25,14 @@ export default function Topbar({ setSidebarOpen }: Props) {
   // Ambil CSRF token saat komponen mount
   useEffect(() => {
     const fetchCsrfToken = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/csrf/",
-        {
-          credentials: "include",
-          headers: {
-            "ngrok-skip-browser-warning": "69420",
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken || "",
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/csrf/`, {
+        credentials: "include",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken || "",
+        },
+      });
       const data = await res.json();
       setCsrfToken(data.csrftoken);
     };
@@ -43,17 +41,14 @@ export default function Topbar({ setSidebarOpen }: Props) {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/logout/",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken || "",
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/logout/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken || "",
+        },
+      });
       if (res.ok) window.location.href = "/";
       else alert("Logout gagal. Coba lagi.");
     } catch (err) {

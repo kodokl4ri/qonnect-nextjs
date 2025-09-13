@@ -23,6 +23,7 @@ type UserData = {
 };
 
 export default function RegisterForm() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [step, setStep] = useState(1);
   const [userData, setUserData] = useState<UserData>({
     username: "",
@@ -51,10 +52,7 @@ export default function RegisterForm() {
 
   // Fetch CSRF
   useEffect(() => {
-    fetch(
-      "https://thus-favorites-virtually-inspired.trycloudflare.com/api/csrf/",
-      { credentials: "include" }
-    )
+    fetch(`${API_BASE_URL}/api/csrf/`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setCsrfToken(data.csrftoken))
       .catch(console.error);
@@ -62,9 +60,7 @@ export default function RegisterForm() {
 
   // Fetch Provinsi
   useEffect(() => {
-    fetch(
-      "https://thus-favorites-virtually-inspired.trycloudflare.com/api/lembaga/provinsi/"
-    )
+    fetch(`${API_BASE_URL}/api/lembaga/provinsi/`)
       .then((res) => res.json())
       .then((data) => setProvinsiList(Array.isArray(data) ? data : []))
       .catch(console.error);
@@ -74,7 +70,7 @@ export default function RegisterForm() {
   useEffect(() => {
     if (userData.provinsi) {
       fetch(
-        `https://thus-favorites-virtually-inspired.trycloudflare.com/api/lembaga/kabkota/?provinsi=${userData.provinsi}`
+        `${API_BASE_URL}/api/lembaga/kabkota/?provinsi=${userData.provinsi}`
       )
         .then((res) => res.json())
         .then((data) => setKabkotaList(Array.isArray(data) ? data : []))
@@ -86,7 +82,7 @@ export default function RegisterForm() {
   useEffect(() => {
     if (userData.kabkota) {
       fetch(
-        `https://thus-favorites-virtually-inspired.trycloudflare.com/api/lembaga/kecamatan/?kabkota=${userData.kabkota}`
+        `${API_BASE_URL}/api/lembaga/kecamatan/?kabkota=${userData.kabkota}`
       )
         .then((res) => res.json())
         .then((data) => setKecamatanList(Array.isArray(data) ? data : []))
@@ -157,17 +153,14 @@ export default function RegisterForm() {
         if (value !== null) formData.append(key, value as any);
       });
 
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/register/",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
-          body: formData,
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/auth/register/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+        body: formData,
+      });
 
       const data = await res.json();
 

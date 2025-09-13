@@ -13,14 +13,14 @@ export default function DashboardLayout({ children }: LayoutProps) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // Ambil data user & institution status
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/home/",
-        { credentials: "include" }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/home/`, {
+        credentials: "include",
+      });
       if (res.status === 403) {
         window.location.href = "/";
         return;
@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           {data.groups.includes("LPQ") &&
             data.institution_status === "DRAFT" && (
               <div className="mb-6 p-4 bg-yellow-500 text-black font-semibold rounded-lg text-center shadow-lg">
-                Akun Anda sedang menunggu verifikasi admin.
+                Akun anda sedang menunggu persetujuan admin.
               </div>
             )}
           {children}

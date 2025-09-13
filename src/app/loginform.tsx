@@ -10,6 +10,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [csrfToken, setCsrfToken] = useState("");
   const searchParams = useSearchParams();
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [message, setMessage] = useState<{
     text: string;
     type: "success" | "error";
@@ -28,16 +29,13 @@ export default function LoginForm() {
   // Ambil CSRF token saat komponen mount
   useEffect(() => {
     const fetchCsrfToken = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/csrf/",
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken || "",
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/csrf/`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken || "",
+        },
+      });
       const data = await res.json();
       setCsrfToken(data.csrftoken);
     };
@@ -48,18 +46,15 @@ export default function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
-    const res = await fetch(
-      "https://thus-favorites-virtually-inspired.trycloudflare.com/api/login/",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
-        },
-        body: JSON.stringify({ email, password, rememberMe: remember }),
-      }
-    );
+    const res = await fetch(`${API_BASE_URL}/api/login/`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({ email, password, rememberMe: remember }),
+    });
 
     const data = await res.json();
     setLoading(false);

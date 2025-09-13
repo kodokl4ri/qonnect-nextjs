@@ -5,15 +5,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
   useEffect(() => {
     const checkAuth = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/auth_status/",
-        {
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/auth/auth_status/`, {
+        credentials: "include",
+      });
       const data = await res.json();
 
       if (data.authenticated) {

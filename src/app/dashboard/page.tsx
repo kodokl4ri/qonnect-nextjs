@@ -13,14 +13,14 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await fetch(
-          "https://thus-favorites-virtually-inspired.trycloudflare.com/api/home/",
-          { credentials: "include" }
-        );
+        const res = await fetch(`${API_BASE_URL}/api/home/`, {
+          credentials: "include",
+        });
         if (!res.ok) {
           const text = await res.text();
           throw new Error(`HTTP ${res.status}: ${text}`);

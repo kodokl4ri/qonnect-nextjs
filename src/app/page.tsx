@@ -7,13 +7,13 @@ import LoginForm from "./loginform";
 
 export default function LoginPage() {
   const router = useRouter();
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     const checkAuth = async () => {
-      const res = await fetch(
-        "https://thus-favorites-virtually-inspired.trycloudflare.com/api/auth/auth_status/",
-        { credentials: "include" }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/auth/auth_status/`, {
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.authenticated) {
         router.replace("/dashboard");
