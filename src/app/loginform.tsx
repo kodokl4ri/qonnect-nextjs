@@ -26,15 +26,11 @@ export default function LoginForm() {
     }
   }, [searchParams]);
 
-  // Ambil CSRF token saat komponen mount
+  // Ambil CSRF token
   useEffect(() => {
     const fetchCsrfToken = async () => {
       const res = await fetch(`${API_BASE_URL}/api/csrf/`, {
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken || "",
-        },
       });
       const data = await res.json();
       setCsrfToken(data.csrftoken);
@@ -87,48 +83,55 @@ export default function LoginForm() {
         </div>
       )}
       <div>
-        <label className="block text-sm text-gray-300 mb-1">E-mail</label>
+        <label className="block text-sm text-[var(--muted-foreground)] mb-1">
+          E-mail
+        </label>
         <input
           type="text"
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          className="w-full px-4 py-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:outline-none transition-colors"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
         />
       </div>
       <div>
-        <label className="block text-sm text-gray-300 mb-1">Password</label>
+        <label className="block text-sm text-[var(--muted-foreground)] mb-1">
+          Password
+        </label>
         <input
           type="password"
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          className="w-full px-4 py-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:outline-none transition-colors"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
         />
       </div>
-      <div className="flex flex-col mt-2 text-sm text-gray-300">
-        {/* Baris Remember Me + Register */}
+      <div className="flex flex-col mt-2 text-sm text-[var(--muted-foreground)]">
+        {/* Remember Me + Register */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 mb-1 w-full">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              className="rounded border-gray-400 bg-white/5 text-purple-500 focus:ring-purple-500"
+              className="rounded border-[var(--border)] bg-[var(--input)] text-[var(--primary)] focus:ring-[var(--primary)]"
             />
             Remember Me
           </label>
           <a
             href="/register"
-            className="text-purple-400 hover:underline font-medium"
+            className="text-[var(--primary)] hover:underline font-medium"
           >
             Register
           </a>
         </div>
 
-        {/* Baris Forgot Password */}
+        {/* Forgot Password */}
         <div className="w-full text-left sm:text-right">
-          <a href="#" className="text-purple-400 hover:underline">
+          <a
+            href="#"
+            className="text-[var(--accent)] hover:underline transition-colors"
+          >
             Forgot Password?
           </a>
         </div>
@@ -138,7 +141,7 @@ export default function LoginForm() {
         type="submit"
         disabled={loading}
         whileTap={{ scale: 0.95 }}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg shadow-purple-500/30 hover:opacity-90 transition disabled:opacity-50"
+        className="w-full py-3 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--primary-foreground)] font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50"
       >
         {loading ? "Logging in..." : "Login"}
       </motion.button>

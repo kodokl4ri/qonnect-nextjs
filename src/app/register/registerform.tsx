@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import { useRouter } from "next/navigation";
 
 type UserData = {
@@ -45,12 +44,12 @@ export default function RegisterForm() {
   const [provinsiList, setProvinsiList] = useState<any[]>([]);
   const [kabkotaList, setKabkotaList] = useState<any[]>([]);
   const [kecamatanList, setKecamatanList] = useState<any[]>([]);
-
   const [loading, setLoading] = useState(false);
   const [csrfToken, setCsrfToken] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
-  // Fetch CSRF
+  // Fetch CSRF token
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/csrf/`, { credentials: "include" })
       .then((res) => res.json())
@@ -66,7 +65,7 @@ export default function RegisterForm() {
       .catch(console.error);
   }, []);
 
-  // Fetch Kabkota ketika provinsi dipilih
+  // Fetch Kabkota & Kecamatan
   useEffect(() => {
     if (userData.provinsi) {
       fetch(
@@ -78,7 +77,6 @@ export default function RegisterForm() {
     }
   }, [userData.provinsi]);
 
-  // Fetch Kecamatan ketika kabkota dipilih
   useEffect(() => {
     if (userData.kabkota) {
       fetch(
@@ -97,30 +95,23 @@ export default function RegisterForm() {
     setUserData({ ...userData, [name]: value });
   };
 
-  // Handle file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // Validasi format PDF
       if (!file.name.toLowerCase().endsWith(".pdf")) {
         alert("File harus berformat PDF");
         return;
       }
-
-      // Validasi ukuran max 20MB
-      const maxSize = 20 * 1024 * 1024;
-      if (file.size > maxSize) {
+      if (file.size > 20 * 1024 * 1024) {
         alert("Ukuran file maksimal 20MB");
         return;
       }
-
       setUserData({ ...userData, legalitas_lembaga: file });
     }
   };
 
   const handleNext = () => {
-    // Validasi sederhana: pastikan semua field step terisi
+    setErrorMessage("");
     if (
       (step === 1 &&
         (!userData.username || !userData.email || !userData.password)) ||
@@ -137,7 +128,7 @@ export default function RegisterForm() {
           !userData.nama_pimpinan ||
           !userData.nomor_HP_pimpinan))
     ) {
-      alert("Please fill all fields before proceeding");
+      setErrorMessage("Please fill all fields before proceeding");
       return;
     }
     setStep(step + 1);
@@ -147,6 +138,7 @@ export default function RegisterForm() {
 
   const handleSubmit = async () => {
     setLoading(true);
+    setErrorMessage("");
     try {
       const formData = new FormData();
       Object.entries(userData).forEach(([key, value]) => {
@@ -156,26 +148,30 @@ export default function RegisterForm() {
       const res = await fetch(`${API_BASE_URL}/api/auth/register/`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "X-CSRFToken": csrfToken,
-        },
+        headers: { "X-CSRFToken": csrfToken },
         body: formData,
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Register berhasil, redirect ke login
         router.replace("/?registered=true");
       } else {
-        alert(data.detail || "Register failed");
+        setErrorMessage(data.detail || "Register failed");
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      setErrorMessage("Something went wrong");
     }
     setLoading(false);
   };
+
+  // Reusable input class
+  const inputClass =
+    "w-full px-4 py-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] transition";
+
+  const selectClass =
+    "w-full px-4 py-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] transition";
 
   return (
     <div className="relative">
@@ -189,9 +185,11 @@ export default function RegisterForm() {
             transition={{ duration: 0.4 }}
             className="space-y-4"
           >
-            <h2 className="text-white font-semibold text-lg">Account Info</h2>
+            <h2 className="text-[var(--card-foreground)] font-semibold text-lg">
+              Account Info
+            </h2>
             <div className="flex flex-col">
-              <label htmlFor="username" className="text-white mb-1 font-medium">
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Username
               </label>
               <input
@@ -200,11 +198,11 @@ export default function RegisterForm() {
                 value={userData.username}
                 onChange={handleChange}
                 placeholder="Username"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="email" className="text-white mb-1 font-medium">
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Email
               </label>
               <input
@@ -213,11 +211,11 @@ export default function RegisterForm() {
                 value={userData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="password" className="text-white mb-1 font-medium">
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Password
               </label>
               <input
@@ -226,7 +224,7 @@ export default function RegisterForm() {
                 value={userData.password}
                 onChange={handleChange}
                 placeholder="Password"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
           </motion.div>
@@ -241,14 +239,12 @@ export default function RegisterForm() {
             transition={{ duration: 0.4 }}
             className="space-y-4"
           >
-            <h2 className="text-white font-semibold text-lg">
+            <h2 className="text-[var(--card-foreground)] font-semibold text-lg">
               Institution Info
             </h2>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="nama_lembaga"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Nama Lembaga
               </label>
               <input
@@ -257,14 +253,12 @@ export default function RegisterForm() {
                 value={userData.nama_lembaga}
                 onChange={handleChange}
                 placeholder="Institution Name"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="alamat_lembaga"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Alamat Lembaga
               </label>
               <input
@@ -273,27 +267,24 @@ export default function RegisterForm() {
                 value={userData.alamat_lembaga}
                 onChange={handleChange}
                 placeholder="Address"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             {/* Dropdown Provinsi */}
             <div className="flex flex-col">
-              <label htmlFor="provinsi" className="text-white mb-1 font-medium">
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Provinsi
               </label>
               <select
                 name="provinsi"
                 value={userData.provinsi}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={selectClass}
               >
                 <option value="">Select Province</option>
                 {provinsiList.map((p) => (
-                  <option
-                    key={p.id}
-                    value={p.id}
-                    style={{ color: "black", backgroundColor: "white" }}
-                  >
+                  <option key={p.id} value={p.id}>
                     {p.nama_provinsi}
                   </option>
                 ))}
@@ -302,22 +293,18 @@ export default function RegisterForm() {
 
             {/* Dropdown Kabkota */}
             <div className="flex flex-col">
-              <label htmlFor="kabkota" className="text-white mb-1 font-medium">
-                Kabupaten/kota
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
+                Kabupaten/Kota
               </label>
               <select
                 name="kabkota"
                 value={userData.kabkota}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={selectClass}
               >
                 <option value="">Select City</option>
                 {kabkotaList.map((k) => (
-                  <option
-                    key={k.id}
-                    value={k.id}
-                    style={{ color: "black", backgroundColor: "white" }}
-                  >
+                  <option key={k.id} value={k.id}>
                     {k.nama_kabkota}
                   </option>
                 ))}
@@ -326,25 +313,18 @@ export default function RegisterForm() {
 
             {/* Dropdown Kecamatan */}
             <div className="flex flex-col">
-              <label
-                htmlFor="kecamatan"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Kecamatan
               </label>
               <select
                 name="kecamatan"
                 value={userData.kecamatan}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={selectClass}
               >
                 <option value="">Select Subdistrict</option>
                 {kecamatanList.map((c) => (
-                  <option
-                    key={c.id}
-                    value={c.id}
-                    style={{ color: "black", backgroundColor: "white" }}
-                  >
+                  <option key={c.id} value={c.id}>
                     {c.nama_kecamatan}
                   </option>
                 ))}
@@ -362,12 +342,12 @@ export default function RegisterForm() {
             transition={{ duration: 0.4 }}
             className="space-y-4"
           >
-            <h2 className="text-white font-semibold text-lg">Leader Info</h2>
+            <h2 className="text-[var(--card-foreground)] font-semibold text-lg">
+              Leader Info
+            </h2>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="tipe_lembaga"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Tipe Lembaga
               </label>
               <input
@@ -376,14 +356,12 @@ export default function RegisterForm() {
                 value={userData.tipe_lembaga}
                 onChange={handleChange}
                 placeholder="Institution Type"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="jenjang_pendidikan"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Jenjang Pendidikan
               </label>
               <input
@@ -392,14 +370,12 @@ export default function RegisterForm() {
                 value={userData.jenjang_pendidikan}
                 onChange={handleChange}
                 placeholder="Education Level"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="tanggal_berdiri"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Tanggal Berdiri
               </label>
               <input
@@ -407,14 +383,12 @@ export default function RegisterForm() {
                 name="tanggal_berdiri"
                 value={userData.tanggal_berdiri}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="legalitas_lembaga"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Upload Legalitas Lembaga (PDF, max 20MB)
               </label>
               <input
@@ -422,7 +396,7 @@ export default function RegisterForm() {
                 name="legalitas_lembaga"
                 accept=".pdf"
                 onChange={handleFileChange}
-                className="w-full text-sm text-white file:bg-indigo-600 file:px-3 file:py-2 file:rounded-xl file:border-none file:text-white file:cursor-pointer"
+                className="w-full text-sm text-[var(--foreground)] file:bg-[var(--primary)] file:hover:bg-[var(--primary-foreground)] file:text-white file:px-3 file:py-2 file:rounded-xl file:cursor-pointer transition"
               />
               {userData.legalitas_lembaga && (
                 <p className="text-green-400 mt-1 text-sm">
@@ -430,11 +404,9 @@ export default function RegisterForm() {
                 </p>
               )}
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="nama_pimpinan"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Nama Pimpinan
               </label>
               <input
@@ -443,14 +415,12 @@ export default function RegisterForm() {
                 value={userData.nama_pimpinan}
                 onChange={handleChange}
                 placeholder="Leader Name"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
+
             <div className="flex flex-col">
-              <label
-                htmlFor="nomor_HP_pimpinan"
-                className="text-white mb-1 font-medium"
-              >
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
                 Nomor HP Pimpinan
               </label>
               <input
@@ -459,18 +429,22 @@ export default function RegisterForm() {
                 value={userData.nomor_HP_pimpinan}
                 onChange={handleChange}
                 placeholder="Leader Phone"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={inputClass}
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {errorMessage && (
+        <p className="text-red-400 mt-2 text-sm font-medium">{errorMessage}</p>
+      )}
+
       <div className="flex justify-between mt-4">
         {step > 1 && (
           <button
             onClick={handlePrev}
-            className="px-6 py-2 rounded-xl bg-gray-700 text-white hover:bg-gray-600 transition"
+            className="px-6 py-2 rounded-xl bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition"
           >
             Previous
           </button>
@@ -478,7 +452,7 @@ export default function RegisterForm() {
         {step < 3 ? (
           <button
             onClick={handleNext}
-            className="px-6 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-500 transition"
+            className="px-6 py-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--ring)] transition"
           >
             Next
           </button>
@@ -486,7 +460,7 @@ export default function RegisterForm() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-6 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-400 transition disabled:opacity-50"
+            className="px-6 py-2 rounded-xl bg-[var(--accent)] text-[var(--accent-foreground)] hover:bg-[var(--primary)] transition disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Submit"}
           </button>
