@@ -88,6 +88,7 @@ export default function LoginForm() {
         </label>
         <input
           type="text"
+          autoFocus
           className="w-full px-4 py-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:outline-none transition-colors"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

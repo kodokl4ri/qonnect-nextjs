@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTheme } from "next-themes";
+import { Sun, Moon, LogOut } from "lucide-react";
 
 interface Props {
   setSidebarOpen?: (open: boolean) => void;
+  onLogoutClick?: () => void;
 }
 
-export default function Topbar({ setSidebarOpen }: Props) {
+export default function Topbar({ setSidebarOpen, onLogoutClick }: Props) {
   const [open, setOpen] = useState(false);
-  const [csrfToken, setCsrfToken] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -21,41 +23,6 @@ export default function Topbar({ setSidebarOpen }: Props) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  // Ambil CSRF token saat komponen mount
-  useEffect(() => {
-    const fetchCsrfToken = async () => {
-      const res = await fetch(`${API_BASE_URL}/api/csrf/`, {
-        credentials: "include",
-        headers: {
-          "ngrok-skip-browser-warning": "69420",
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken || "",
-        },
-      });
-      const data = await res.json();
-      setCsrfToken(data.csrftoken);
-    };
-    fetchCsrfToken();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/logout/`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken || "",
-        },
-      });
-      if (res.ok) window.location.href = "/";
-      else alert("Logout gagal. Coba lagi.");
-    } catch (err) {
-      console.error(err);
-      alert("Terjadi kesalahan saat logout.");
-    }
-  };
 
   return (
     <header className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-indigo-500/30 bg-slate-950/40 backdrop-blur-lg relative">
@@ -97,14 +64,24 @@ export default function Topbar({ setSidebarOpen }: Props) {
                 Profile
               </a>
               <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600/20"
+                onClick={onLogoutClick}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-red-600/20 rounded-lg transition"
               >
+                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             </div>
           )}
         </div>
+
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="flex items-center justify-center rounded-full border border-gray-300 bg-white px-2 py-2 text-gray-800 shadow-sm transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        >
+          <span className="sr-only">Toggle theme</span>
+          <Sun className="h-5 w-5 dark:hidden" />
+          <Moon className="h-5 w-5 hidden dark:block" />
+        </button>
       </div>
     </header>
   );

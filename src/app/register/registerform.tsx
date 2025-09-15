@@ -19,6 +19,7 @@ type UserData = {
   nama_pimpinan: string;
   nomor_HP_pimpinan: string;
   legalitas_lembaga: File | null;
+  agreed: boolean;
 };
 
 export default function RegisterForm() {
@@ -39,6 +40,7 @@ export default function RegisterForm() {
     nama_pimpinan: "",
     nomor_HP_pimpinan: "",
     legalitas_lembaga: null,
+    agreed: false,
   });
 
   const [provinsiList, setProvinsiList] = useState<any[]>([]);
@@ -120,13 +122,7 @@ export default function RegisterForm() {
           !userData.alamat_lembaga ||
           !userData.provinsi ||
           !userData.kabkota ||
-          !userData.kecamatan)) ||
-      (step === 3 &&
-        (!userData.tipe_lembaga ||
-          !userData.jenjang_pendidikan ||
-          !userData.tanggal_berdiri ||
-          !userData.nama_pimpinan ||
-          !userData.nomor_HP_pimpinan))
+          !userData.kecamatan))
     ) {
       setErrorMessage("Please fill all fields before proceeding");
       return;
@@ -139,10 +135,41 @@ export default function RegisterForm() {
   const handleSubmit = async () => {
     setLoading(true);
     setErrorMessage("");
+
+    // 🔒 Validasi Agreement sebelum submit
+    if (!userData.agreed) {
+      setErrorMessage(
+        "You must agree to the User Agreement and Privacy Policy"
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (
+      !userData.tipe_lembaga ||
+      !userData.jenjang_pendidikan ||
+      !userData.tanggal_berdiri ||
+      !userData.nama_pimpinan ||
+      !userData.nomor_HP_pimpinan ||
+      !userData.agreed
+    ) {
+      setErrorMessage(
+        "Please fill all required fields and agree to the policies"
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const formData = new FormData();
       Object.entries(userData).forEach(([key, value]) => {
-        if (value !== null) formData.append(key, value as any);
+        if (value !== null) {
+          if (typeof value === "boolean") {
+            formData.append(key, value ? "true" : "false");
+          } else {
+            formData.append(key, value as any);
+          }
+        }
       });
 
       const res = await fetch(`${API_BASE_URL}/api/auth/register/`, {
@@ -195,6 +222,7 @@ export default function RegisterForm() {
               <input
                 type="text"
                 name="username"
+                autoFocus
                 value={userData.username}
                 onChange={handleChange}
                 placeholder="Username"
@@ -250,6 +278,7 @@ export default function RegisterForm() {
               <input
                 type="text"
                 name="nama_lembaga"
+                autoFocus
                 value={userData.nama_lembaga}
                 onChange={handleChange}
                 placeholder="Institution Name"
@@ -353,6 +382,7 @@ export default function RegisterForm() {
               <input
                 type="text"
                 name="tipe_lembaga"
+                autoFocus
                 value={userData.tipe_lembaga}
                 onChange={handleChange}
                 placeholder="Institution Type"
@@ -431,6 +461,43 @@ export default function RegisterForm() {
                 placeholder="Leader Phone"
                 className={inputClass}
               />
+            </div>
+            {/* User Agreement Checkbox */}
+            <div className="flex items-start space-x-2">
+              <input
+                id="agreement"
+                name="agreed"
+                type="checkbox"
+                checked={userData.agreed}
+                onChange={(e) =>
+                  setUserData({ ...userData, agreed: e.target.checked })
+                }
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                required
+              />
+              <label
+                htmlFor="agreement"
+                className="text-sm text-gray-600 dark:text-gray-300"
+              >
+                I agree to the{" "}
+                <a
+                  href="/user-agreement"
+                  className="text-indigo-500 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  User Agreement
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy-policy"
+                  className="text-indigo-500 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Privacy Policy
+                </a>
+              </label>
             </div>
           </motion.div>
         )}

@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
   if (loading)
     return (
-      <div className="flex justify-center items-center h-full text-gray-400">
+      <div className="flex justify-center items-center h-full text-[var(--muted-foreground)]">
         Loading...
       </div>
     );
@@ -64,10 +64,6 @@ export default function DashboardPage() {
   } else if (data.groups?.includes("LPQ")) {
     stats.push(
       { title: "Institution", value: data.institution_name },
-      {
-        title: "Profile Completed",
-        value: data.profile_completed ? "✅" : "❌",
-      },
       { title: "Completeness Score", value: data.completeness_score },
       { title: "My Applications", value: data.my_applications },
       { title: "Pending Applications", value: data.applications_pending },
@@ -78,7 +74,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-2xl font-bold text-indigo-400">Welcome back!</h2>
+      <h2 className="text-2xl font-bold text-[var(--primary)]">
+        Welcome back!
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((s, i) => (
           <StatsCard key={i} title={s.title} value={s.value} index={i} />
