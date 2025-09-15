@@ -131,7 +131,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
       {/* Sidebar */}
       <aside
         ref={menuRef}
-        className={`fixed inset-y-0 left-0 z-40 w-64 p-6 transform transition-transform duration-300 ease-in-out
+        className={`fixed inset-y-0 left-0 z-50 w-64 p-6 transform transition-transform duration-300 ease-in-out
           bg-[var(--sidebar)] text-[var(--sidebar-foreground)]
           border-r border-[var(--sidebar-border)]
           ${
@@ -212,20 +212,21 @@ export default function DashboardLayout({ children }: LayoutProps) {
         </nav>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col md:ml-0 min-h-screen">
         <Topbar setSidebarOpen={setSidebarOpen} onLogoutClick={handleLogout} />
-        <main className="flex-1 p-4 sm:p-6 md:p-8 bg-transparent">
+
+        <main className="relative flex-1 p-4 pt-16 sm:p-6 md:p-8 bg-transparent">
           {/* Banner draft LPQ */}
           {data.groups.includes("LPQ") &&
             data.institution_status === "DRAFT" && (
-              <div className="mb-6 p-4 bg-yellow-500 text-black font-semibold rounded-lg text-center shadow-lg">
+              <div className="mb-0 p-4 sm:mt-4 md:mt-10 bg-yellow-500 text-black font-semibold rounded-lg text-center shadow-lg">
                 Akun anda sedang menunggu persetujuan admin.
               </div>
             )}
           {children}
         </main>
       </div>
+
       {/* Modal Logout */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">

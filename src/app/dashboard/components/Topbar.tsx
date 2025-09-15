@@ -25,7 +25,16 @@ export default function Topbar({ setSidebarOpen, onLogoutClick }: Props) {
   }, []);
 
   return (
-    <header className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-indigo-500/30 bg-slate-950/40 backdrop-blur-lg relative">
+    <header
+      className="fixed top-0 left-0 
+    w-full 
+    md:ml-64 md:w-[calc(100%-16rem)] 
+    h-16 px-4 sm:px-6 
+    flex items-center justify-between 
+    border-b border-indigo-500/30 
+    bg-slate-950/40 backdrop-blur-lg 
+    z-40"
+    >
       {/* Hamburger mobile */}
       {setSidebarOpen && (
         <button
@@ -36,7 +45,7 @@ export default function Topbar({ setSidebarOpen, onLogoutClick }: Props) {
         </button>
       )}
 
-      <h1 className="text-base sm:text-lg font-semibold text-indigo-300">
+      <h1 className="text-base sm:text-lg font-semibold text-[var(--foreground)]">
         Dashboard
       </h1>
 
