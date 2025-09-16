@@ -3,11 +3,18 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  validatePassword,
+  validateEmail,
+  validateUsername,
+  validatePhone,
+} from "../utils/validators";
 
 type UserData = {
   username: string;
   email: string;
   password: string;
+  passwordConfirm: string;
   nama_lembaga: string;
   alamat_lembaga: string;
   provinsi: string;
@@ -29,6 +36,7 @@ export default function RegisterForm() {
     username: "",
     email: "",
     password: "",
+    passwordConfirm: "",
     nama_lembaga: "",
     alamat_lembaga: "",
     provinsi: "",
@@ -127,6 +135,22 @@ export default function RegisterForm() {
       setErrorMessage("Please fill all fields before proceeding");
       return;
     }
+    // ✅ Tambahkan cek password match
+    if (step === 1) {
+      const emailError = validateEmail(userData.email);
+      if (emailError) return setErrorMessage(emailError);
+
+      const usernameError = validateUsername(userData.username);
+      if (usernameError) return setErrorMessage(usernameError);
+
+      const passwordError = validatePassword(
+        userData.password,
+        userData.username,
+        userData.passwordConfirm
+      );
+      if (passwordError) return setErrorMessage(passwordError);
+    }
+
     setStep(step + 1);
   };
 
@@ -135,6 +159,13 @@ export default function RegisterForm() {
   const handleSubmit = async () => {
     setLoading(true);
     setErrorMessage("");
+
+    const phoneError = validatePhone(userData.nomor_HP_pimpinan);
+    if (phoneError) {
+      setErrorMessage(phoneError);
+      setLoading(false);
+      return;
+    }
 
     // 🔒 Validasi Agreement sebelum submit
     if (!userData.agreed) {
@@ -163,6 +194,7 @@ export default function RegisterForm() {
     try {
       const formData = new FormData();
       Object.entries(userData).forEach(([key, value]) => {
+        if (key === "passwordConfirm") return; // skip
         if (value !== null) {
           if (typeof value === "boolean") {
             formData.append(key, value ? "true" : "false");
@@ -252,6 +284,19 @@ export default function RegisterForm() {
                 value={userData.password}
                 onChange={handleChange}
                 placeholder="Password"
+                className={inputClass}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="mb-1 font-medium text-[var(--card-foreground)]">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="passwordConfirm"
+                value={userData.passwordConfirm}
+                onChange={handleChange}
+                placeholder="password"
                 className={inputClass}
               />
             </div>
