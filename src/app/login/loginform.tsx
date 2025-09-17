@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -16,14 +17,15 @@ export default function LoginForm() {
     type: "success" | "error" | "warning";
   } | null>(null);
 
+  useEffect(() => {
+    const flash = Cookies.get("flash_message");
+    if (flash) {
+      setMessage(JSON.parse(flash));
+      Cookies.remove("flash_message"); // hapus setelah dibaca
+    }
+  }, []);
   // Ambil pesan sukses register dari query param
   useEffect(() => {
-    if (searchParams.get("registered") === "true") {
-      setMessage({
-        text: "Register berhasil! Anda harus verifikasi email untuk bisa login.",
-        type: "warning",
-      });
-    }
     // Pesan sukses verifikasi email
     if (searchParams.get("verified") === "1") {
       setMessage({

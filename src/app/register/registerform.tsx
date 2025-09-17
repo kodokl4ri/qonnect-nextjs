@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+
 import {
   validatePassword,
   validateEmail,
@@ -214,7 +216,15 @@ export default function RegisterForm() {
       const data = await res.json();
 
       if (res.ok) {
-        router.replace("/login?registered=true");
+        Cookies.set(
+          "flash_message",
+          JSON.stringify({
+            text: "Register berhasil! Anda harus verifikasi email untuk bisa login.",
+            type: "warning",
+          }),
+          { expires: 1 / 288 }
+        );
+        router.replace("/login");
       } else {
         setErrorMessage(data.detail || "Register failed");
       }
