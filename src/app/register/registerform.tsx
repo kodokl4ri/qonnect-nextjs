@@ -214,7 +214,7 @@ export default function RegisterForm() {
       const data = await res.json();
 
       if (res.ok) {
-        router.replace("/?registered=true");
+        router.replace("/login?registered=true");
       } else {
         setErrorMessage(data.detail || "Register failed");
       }

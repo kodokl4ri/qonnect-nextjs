@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         credentials: "include",
       });
       if (res.status === 403) {
-        window.location.href = "/";
+        window.location.href = "/login";
         return;
       }
       const json = await res.json();
@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           "X-CSRFToken": csrfToken || "",
         },
       });
-      if (res.ok) window.location.href = "/";
+      if (res.ok) window.location.href = "/login";
       else alert("Logout gagal. Coba lagi.");
     } catch (err) {
       console.error(err);
@@ -220,7 +220,8 @@ export default function DashboardLayout({ children }: LayoutProps) {
           {data.groups.includes("LPQ") &&
             data.institution_status === "DRAFT" && (
               <div className="mb-0 p-4 sm:mt-4 md:mt-10 bg-yellow-500 text-black font-semibold rounded-lg text-center shadow-lg">
-                Akun anda sedang menunggu persetujuan admin.
+                Akun anda sedang ditinjau, anda akan diberikan akses program
+                setelah admin menyetujui.
               </div>
             )}
           {children}

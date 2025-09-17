@@ -13,14 +13,21 @@ export default function LoginForm() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [message, setMessage] = useState<{
     text: string;
-    type: "success" | "error";
+    type: "success" | "error" | "warning";
   } | null>(null);
 
   // Ambil pesan sukses register dari query param
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
       setMessage({
-        text: "Register berhasil! Silakan login.",
+        text: "Register berhasil! Anda harus verifikasi email untuk bisa login.",
+        type: "warning",
+      });
+    }
+    // Pesan sukses verifikasi email
+    if (searchParams.get("verified") === "1") {
+      setMessage({
+        text: "Email berhasil diverifikasi! Silakan login.",
         type: "success",
       });
     }
@@ -76,7 +83,11 @@ export default function LoginForm() {
           className={`mb-4 p-3 rounded-lg text-center ${
             message.type === "success"
               ? "bg-green-500 text-white"
-              : "bg-red-500 text-white"
+              : message.type === "error"
+              ? "bg-red-500 text-white"
+              : message.type === "warning"
+              ? "bg-yellow-400 text-black"
+              : ""
           }`}
         >
           {message.text}

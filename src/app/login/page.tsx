@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import LoginForm from "./loginform";
-import { ModeToggle } from "../components/mode-toggle";
+import { ModeToggle } from "../../components/mode-toggle";
 import FuturisticLayout from "@/components/FuturisticLayout";
 
 export default function LoginPage() {
