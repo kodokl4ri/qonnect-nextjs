@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface Props {
   setSidebarOpen?: (open: boolean) => void;
@@ -13,6 +14,15 @@ export default function Topbar({ setSidebarOpen, onLogoutClick }: Props) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+
+  // Mapping judul berdasarkan path
+  const getTitle = () => {
+    if (pathname.startsWith("/institutions/dashboard")) return "Dashboard";
+    if (pathname.startsWith("/institutions/programs")) return "Programs";
+    if (pathname.startsWith("/institutions/profile")) return "Profile";
+    return "Dashboard"; // fallback
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -46,7 +56,7 @@ export default function Topbar({ setSidebarOpen, onLogoutClick }: Props) {
       )}
 
       <h1 className="text-base sm:text-lg font-semibold text-[var(--foreground)]">
-        Dashboard
+        {getTitle()}
       </h1>
 
       <div className="flex items-center gap-3 sm:gap-4">

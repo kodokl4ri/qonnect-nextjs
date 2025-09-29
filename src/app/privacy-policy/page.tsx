@@ -1,4 +1,4 @@
-import LegalLayout from "@/app/user-agreement/components/layout";
+import LegalLayout from "@/app/user-agreement/components/LegalLayout";
 
 export default function PrivacyPolicyPage() {
   return (

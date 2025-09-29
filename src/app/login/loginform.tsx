@@ -65,7 +65,7 @@ export default function LoginForm() {
     setLoading(false);
 
     if (data.success) {
-      window.location.href = "/dashboard";
+      window.location.href = "/institutions/dashboard";
     } else {
       alert(data.error || "Login gagal");
     }

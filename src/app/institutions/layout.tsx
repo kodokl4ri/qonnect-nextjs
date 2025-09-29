@@ -3,8 +3,9 @@
 import { ReactNode, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Topbar from "./components/Topbar";
+import Topbar from "./dashboard/components/Topbar";
 import { ModeToggle } from "@/components/mode-toggle";
+import { redirect } from "next/navigation";
 
 interface LayoutProps {
   children: ReactNode;
@@ -33,6 +34,12 @@ export default function DashboardLayout({ children }: LayoutProps) {
       const json = await res.json();
       setData(json);
       setLoading(false);
+      if (!json.groups.includes("LPQ")) {
+        redirect("/unauthorized");
+      }
+      if (json.institution_status !== "AKTIF") {
+        redirect("/institutions/dashboard");
+      }
     };
     fetchData();
   }, []);
@@ -81,12 +88,12 @@ export default function DashboardLayout({ children }: LayoutProps) {
       { title: "Users", href: "/dashboard/users" }
     );
   } else if (data.groups.includes("LPQ")) {
-    menuItems.push({ title: "Dashboard", href: "/dashboard" });
+    menuItems.push({ title: "Dashboard", href: "/institutions/dashboard" });
     if (data.institution_status === "AKTIF") {
       menuItems.push(
-        { title: "Applications", href: "/dashboard/applications" },
-        { title: "Reports", href: "/dashboard/reports" },
-        { title: "Profile", href: "/dashboard/profile" }
+        { title: "Programs", href: "/institutions/programs" },
+        { title: "Reports", href: "/institutions/reports" },
+        { title: "Profile", href: "/institutions/profile" }
       );
     }
   } else if (data.groups.includes("PARTNER")) {
@@ -190,20 +197,19 @@ export default function DashboardLayout({ children }: LayoutProps) {
           </span>
         </div>
 
-        {/* Navigation */}
         <nav className="mt-4 flex-1 flex flex-col gap-2">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`block px-3 py-2 rounded-lg transition
-                  ${
-                    isActive
-                      ? "bg-[var(--sidebar-accent)] text-[var(--sidebar-accent-foreground)]"
-                      : "hover:bg-[var(--sidebar-accent)] hover:text-[var(--sidebar-accent-foreground)] text-[var(--sidebar-foreground)]"
-                  }`}
+          ${
+            isActive
+              ? "bg-[var(--sidebar-accent)] text-[var(--sidebar-accent-foreground)]"
+              : "hover:bg-[var(--sidebar-accent)] hover:text-[var(--sidebar-accent-foreground)] text-[var(--sidebar-foreground)]"
+          }`}
               >
                 {item.title}
               </Link>
